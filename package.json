@@ -9,7 +9,7 @@
   },
   "scripts": {
     "compile": "tsc",
-    "copyFiles": "copyfiles index.html klondike.js build"
+    "copyFiles": "copyfiles index.html klondike.js docs"
   },
   "repository": {
     "type": "git",
