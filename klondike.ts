@@ -420,8 +420,10 @@ function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
     }
 
     // show last card in origin slot
-    if (topCardOfOldSlot.card && oldSlot.slot!.kind !== "stock")
+    //if (topCardOfOldSlot.card && oldSlot.slot!.kind !== "stock")
+    if (topCardOfOldSlot.card) {
       topCardOfOldSlot.card!.faceUp = true
+    }
 
     // release card from grab
     delete grabbedCard.grab

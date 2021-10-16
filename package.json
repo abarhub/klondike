@@ -4,9 +4,8 @@
   "description": "The classic game of Klondike",
   "main": "index.js",
   "dependencies": {
-    "typescript": "^2.9.2"
+    "typescript": "^4.4.4"
   },
-  "devDependencies": {},
   "scripts": {
     "compile": "tsc"
   },
