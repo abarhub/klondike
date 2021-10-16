@@ -3,11 +3,13 @@
   "version": "1.0.0",
   "description": "The classic game of Klondike",
   "main": "index.js",
-  "dependencies": {
+  "devDependencies": {
+    "copyfiles": "^2.4.1",
     "typescript": "^4.4.4"
   },
   "scripts": {
-    "compile": "tsc"
+    "compile": "tsc",
+    "copyFiles": "copyfiles index.html klondike.js build"
   },
   "repository": {
     "type": "git",
