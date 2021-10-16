@@ -4,6 +4,8 @@
 
 The goal is to sort each suit independently in increasing order in the foundation area (top right).
 
+fork of : https://github.com/joanrieu/klondike
+
 ### Rules
 - You can stack cards of alternating colors and decreasing rank in the tableau (bottom).
 - Each card is revealed when the card above is removed.
