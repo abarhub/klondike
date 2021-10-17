@@ -1,6 +1,6 @@
 {
   "name": "klondike",
-  "version": "1.0.0",
+  "version": "1.2.0",
   "description": "The classic game of Klondike",
   "main": "index.js",
   "devDependencies": {
@@ -13,13 +13,13 @@
   },
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/joanrieu/klondike.git"
+    "url": "https://github.com/abarhub/klondike"
   },
   "keywords": [],
-  "author": "Joan Rieu <joan@joanrieu.com>",
+  "author": "Alain Barret",
   "license": "MIT",
   "bugs": {
-    "url": "https://github.com/joanrieu/klondike/issues"
+    "url": "https://github.com/abarhub/klondike/issues"
   },
-  "homepage": "https://joanrieu.github.io/klondike"
+  "homepage": "https://abarhub.github.io/klondike/"
 }

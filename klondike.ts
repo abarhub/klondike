@@ -240,6 +240,13 @@ function watchMouseEvents(): void {
   })
 }
 
+function initDisplay(): void {
+  let elt=document?.getElementById("seedValue")
+  if(elt) {
+    elt.innerHTML = "Seed : " + seed;
+  }
+}
+
 function initialize(reinitRandom: boolean): void {
   if(reinitRandom) {
     seed=Math.random()
@@ -247,6 +254,7 @@ function initialize(reinitRandom: boolean): void {
   } else {
     lastValue=0;
   }
+  initDisplay()
   createCards()
   dealCard()
   createDiscardSlot()

@@ -12,10 +12,39 @@
     max-width: 100vw;
     max-height: 100vh;
   }
+  .container {
+      display: flex;
+  }
+
+  .item {
+      flex-grow: 1;
+      /*height: 100px;*/
+  }
+
+  .item + .item {
+      margin-left: 2%;
+  }
+
+  .space {
+      margin-left: 5px;
+  }
+
 </style>
-<canvas width="860" height="1000"></canvas>
-<script src="klondike.js"></script>
-<div>
-    <button onclick="nouvellePartie()">Nouvelle partie</button>
-    <button onclick="recommencer()">Recommencer</button>
+<div class="container">
+
+    <div  class="item"></div>
+
+    <div class="item">
+        <canvas width="860" height="1000"></canvas>
+    </div>
+    <div class="item">
+        <div class="container">
+            <button onclick="nouvellePartie()" class="space">Nouvelle partie</button>
+            <button onclick="recommencer()" class="space">Recommencer</button>
+            <div id="seedValue" class="space"></div>
+            <div class="space">Version 1.2.0</div>
+        </div>
+    </div>
+    <script src="klondike.js"></script>
+
 </div>
