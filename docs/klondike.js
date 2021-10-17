@@ -181,6 +181,12 @@ function watchMouseEvents() {
         event.preventDefault();
     });
 }
+function initDisplay() {
+    let elt = document === null || document === void 0 ? void 0 : document.getElementById("seedValue");
+    if (elt) {
+        elt.innerHTML = "Seed : " + seed;
+    }
+}
 function initialize(reinitRandom) {
     if (reinitRandom) {
         seed = Math.random();
@@ -189,6 +195,8 @@ function initialize(reinitRandom) {
     else {
         lastValue = 0;
     }
+    //setTimeout(()=>initDisplay())
+    initDisplay();
     createCards();
     dealCard();
     createDiscardSlot();
