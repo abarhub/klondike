@@ -1,17 +1,45 @@
 import {canvas, gos} from "./init.js";
-import {GameObject} from "./game-object.js";
+import {GameObject, GameObject2} from "./game-object.js";
+import {saveGameState} from "./undo.js";
 
 // UPDATE
 
+function updateGrabMouse(go:GameObject){
+    if (go.grab)
+        updateGrab(go)
+    if (go.mouse)
+        updateMouse(go)
+}
+
+export function listGameObject(gos:GameObject2):GameObject[]{
+    const res:GameObject[]=[];
+    for (const go of gos.cards.values()) {
+        res.push(go);
+    }
+    if(gos.discardSlot){
+        res.push(gos.discardSlot);
+    }
+    if(gos.foundation){
+        for (const go of gos.foundation.values()) {
+            res.push(go);
+        }
+    }
+    if(gos.mouseEvent){
+        res.push(gos.mouseEvent);
+    }
+    if(gos.firework){
+        for (const go of gos.firework.values()) {
+            res.push(go);
+        }
+    }
+    return res;
+}
 
 export function update() {
-    for (const go of gos.values()) {
-        if (go.grab)
-            updateGrab(go)
-        if (go.mouse)
-            updateMouse(go)
+    for (const go of listGameObject(gos)) {
+        updateGrabMouse(go);
     }
-    for (const go of gos.values()) {
+    for (const go of listGameObject(gos)) {
         if (go.card)
             updateCard(go)
     }
@@ -33,14 +61,14 @@ function updateCard(go: GameObject) {
 
 function updateFireworks() {
     let found = false
-    for (const go of gos.values()) {
+    for (const go of listGameObject(gos).values()) {
         if (go.firework) {
             found = true
             updateFirework(go)
         }
     }
     if (!found) {
-        const won = ![...gos.values()]
+        const won = ![...listGameObject(gos).values()]
             .filter(go => go.slot && go.slot.kind === "foundation")
             .map(findTopCardOfSlot)
             .find(go => !go.card || go.card.rank < 13)
@@ -60,7 +88,7 @@ function updateFirework(go: GameObject) {
         go.firework!.vy += go.firework!.ay
         go.transform!.y += go.firework!.vy
     } else {
-        gos.delete(go)
+        gos.firework.delete(go)
     }
 }
 
@@ -85,13 +113,13 @@ function spawnFireworks() {
                 height: 10
             }
         }
-        gos.add(go)
+        gos.firework.add(go)
     }
     setTimeout(spawnFireworks, Math.random() * 400)
 }
 
 function updateGrab(go: GameObject) {
-    const mouse = [...gos.values()].find(go => !!go.mouse)!
+    const mouse = [...listGameObject(gos).values()].find(go => !!go.mouse)!
     go.transform!.x = mouse.transform!.x + go.grab!.dx
     go.transform!.y = mouse.transform!.y + go.grab!.dy
 }
@@ -99,7 +127,7 @@ function updateGrab(go: GameObject) {
 function updateMouse(go: GameObject) {
     // detect card & slot under mouse
     const { x, y } = go.transform!
-    const card = [...gos.values()]
+    const card = [...listGameObject(gos).values()]
         .filter(go =>
             go.card
             && x >= go.transform!.x - go.transform!.width / 2
@@ -109,7 +137,7 @@ function updateMouse(go: GameObject) {
         )
         .sort((a, b) => a.transform!.y - b.transform!.y)
         .pop()
-    const slot = [...gos.values()]
+    const slot = [...listGameObject(gos).values()]
         .filter(go =>
             go.slot
             && x >= go.transform!.x - go.transform!.width / 2
@@ -126,11 +154,12 @@ function updateMouse(go: GameObject) {
     const changed = pressed !== wasPressed
     go.mouse!.wasPressed = go.mouse!.pressed
     if (changed) {
-        const grabbedCard = [...gos.values()].find(go => !!go.grab)
+        const grabbedCard = [...listGameObject(gos).values()].find(go => !!go.grab)
         if (!grabbedCard && pressed) {
             if (card) {
                 if (card.card!.faceUp) {
                     // start moving a card
+                    saveGameState();
                     card.grab = {
                         dx: card.transform!.x - x,
                         dy: card.transform!.y - y,
@@ -166,8 +195,9 @@ function updateMouse(go: GameObject) {
 }
 
 function findDiscardSlot() {
-    return [...gos.values()].find(go => !!go.slot && go.slot.kind === "discard")!
+    return [...listGameObject(gos).values()].find(go => !!go.slot && go.slot.kind === "discard")!
 }
+
 
 function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
     const MOVE_CANCELLED = Symbol.for("move cancelled")
@@ -250,7 +280,7 @@ function findTopCardOfSlot(slot: GameObject) {
 }
 
 function findCardAbove(card: GameObject) {
-    return [...gos.values()].find(go => !!(go.stack && go.stack.previous === card))
+    return [...listGameObject(gos).values()].find(go => !!(go.stack && go.stack.previous === card))
 }
 
 function isStackingAllowed(bottomCard: GameObject, topCard: GameObject) {

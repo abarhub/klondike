@@ -1,12 +1,14 @@
-import {GameObject} from "./game-object.js";
+import {GameObject, GameObject2} from "./game-object.js";
+import {nouvellePartie, recommencer} from "./action.js";
+import {annuleAction} from "./undo.js";
 
 
 // INIT
 
-export const gos = new Set<GameObject>();
+export const gos :GameObject2=new GameObject2();
 export const canvas = document.getElementsByTagName("canvas")[0]
 export const ctx = canvas.getContext("2d")!
-const OFFSCREEN = -1000
+export const OFFSCREEN = -1000
 const randomValues: number[]=[];
 let seed=Math.random()*100000;
 let lastValue=0;
@@ -40,10 +42,10 @@ function getRandom(): number{
 
 // create cards
 function createCards(){
-    gos.clear()
+    gos.cards.clear()
     for (const suit of ["SPADES", "HEARTS", "CLUBS", "DIAMONDS"])
         for (let rank = 1; rank <= 13; ++rank)
-            gos.add({
+            gos.cards.add({
                 card: {
                     suit,
                     rank,
@@ -60,7 +62,7 @@ function createCards(){
 
 // deal cards
 function dealCard(): void {
-    const shuffledDeck = [...gos.values()].sort((a, b) => getRandom() - .5)
+    const shuffledDeck = [...gos.cards.values()].sort((a, b) => getRandom() - .5)
     for (let pile = 1; pile <= 7; ++pile) {
         let previous: GameObject = {
             slot: {
@@ -74,7 +76,7 @@ function dealCard(): void {
                 height: 150
             }
         }
-        gos.add(previous)
+        gos.cards.add(previous)
         for (let position = 1; position <= pile; ++position) {
             const card = shuffledDeck.pop()!
             card.stack = {
@@ -96,7 +98,7 @@ function dealCard(): void {
             height: 150
         }
     }
-    gos.add(previous)
+    gos.cards.add(previous)
     for (const card of shuffledDeck) {
         card.stack = {
             previous,
@@ -119,7 +121,7 @@ function createDiscardSlot(): void{
             height: 150
         }
     }
-    gos.add(go)
+    gos.discardSlot=go;
 }
 
 // create foundation
@@ -137,7 +139,7 @@ function createFoundation(): void{
                 height: 150
             }
         }
-        gos.add(go)
+        gos.foundation.push(go)
     }
 }
 
@@ -156,7 +158,11 @@ function watchMouseEvents(): void {
             height: 1
         }
     }
-    gos.add(go)
+    gos.mouseEvent=go;
+    addEvent(go);
+}
+
+export function addEvent(go: GameObject){
     canvas.addEventListener("mousedown", event => {
         go.mouse!.pressed = true
         event.preventDefault()
@@ -200,6 +206,15 @@ function initDisplay(): void {
     }
 }
 
+function initBouton() {
+    if(document) {
+        document.querySelector('#nouvellePartie')?.addEventListener('click', nouvellePartie);
+        document.querySelector('#recommencer')?.addEventListener('click', recommencer);
+        document.querySelector('#annuler')?.addEventListener('click', annuleAction);
+    }
+
+}
+
 export function initialize(reinitRandom: boolean): void {
     if(reinitRandom) {
         seed=Math.random()
@@ -213,6 +228,7 @@ export function initialize(reinitRandom: boolean): void {
     createDiscardSlot()
     createFoundation()
     watchMouseEvents()
+    initBouton();
 }
 
 
