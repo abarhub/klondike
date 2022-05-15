@@ -9,7 +9,7 @@
 //     return clone;
 // }
 
-import {GameObject, GameObject2} from "./game-object.js";
+import {CardObject, GameObject, GameObject2} from "./game-object.js";
 import {addEvent, gos, OFFSCREEN} from "./init.js";
 
 
@@ -64,13 +64,13 @@ function deepCopy2(source: GameObject): GameObject {
             height: source.transform.height
         }
     }
-    if(source.card){
-        res.card={
-            suit: source.card.suit,
-            rank: source.card.rank,
-            faceUp:source.card.faceUp
-        }
-    }
+    // if(source.card){
+    //     res.card={
+    //         suit: source.card.suit,
+    //         rank: source.card.rank,
+    //         faceUp:source.card.faceUp
+    //     }
+    // }
     if(source.slot){
         switch (source.slot.kind) {
             case "pile":
@@ -112,16 +112,42 @@ function deepCopy3(source: GameObject): GameObject {
     if(clone.mouse){
         clone.mouse.pressed=false;
         clone.mouse.wasPressed=false;
-        clone.mouse.targets={};
+        //clone.mouse.targets={};
         //addEvent(clone);
     }
     return clone;
 }
 
+function deepCopyCard(source: CardObject): CardObject {
+    const res=new CardObject();
+    if(source.card){
+        res.card={
+            suit: source.card.suit,
+            rank: source.card.rank,
+            faceUp:source.card.faceUp
+        }
+    }
+    if(source.stack){
+        res.stack={
+            previous: deepCopy2(source.stack.previous),
+            spaced: source.stack.spaced
+        }
+    }
+    if(source.transform){
+        res.transform={
+            x: source.transform.x,
+            y: source.transform.y,
+            width: source.transform.width,
+            height: source.transform.height
+        }
+    }
+    return res;
+}
+
 function copy(gos: GameObject2): GameObject2 {
     const res = new GameObject2();
     for (let tmp of gos.cards) {
-        res.cards.add(deepCopy3(tmp));
+        res.cards.add(deepCopyCard(tmp));
     }
     for (let tmp of gos.foundation) {
         res.foundation.push(deepCopy3(tmp));

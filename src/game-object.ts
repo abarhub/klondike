@@ -24,13 +24,13 @@ export interface Mouse {
     pressed: boolean,
     wasPressed: boolean,
     targets: {
-        card?: GameObject,
+        card?: CardObject,
         slot?: GameObject
     }
 }
 
 export interface Stack {
-    previous: GameObject,
+    previous: CardObject,
     spaced: boolean
 }
 
@@ -41,9 +41,50 @@ export interface Transform {
     height: number
 }
 
-export class GameObject {
-    card?: Card=undefined;
+export class FireworkObject {
     firework?: Firework=undefined;
+    transform?: Transform=undefined;
+}
+
+export abstract class CommonObject{
+    stack?: Stack=undefined;
+    transform?: Transform=undefined;
+    grab?: Grab=undefined;
+}
+
+export class CardObject extends CommonObject{
+    card?: Card=undefined;
+    slot?: {
+        kind: "pile",
+        pile: number
+    } | {
+        kind: "stock"
+    } | {
+        kind: "discard"
+    } | {
+        kind: "foundation",
+        foundation: number
+    }=undefined;
+}
+
+// export class SlotObject extends CommonObject {
+//     card?: Card=undefined;
+//     slot?: {
+//         kind: "pile",
+//         pile: number
+//     } | {
+//         kind: "stock"
+//     } | {
+//         kind: "discard"
+//     } | {
+//         kind: "foundation",
+//         foundation: number
+//     }=undefined;
+// }
+
+export class GameObject {
+    //card?: Card=undefined;
+    //firework?: Firework=undefined;
     grab?: Grab=undefined;
     mouse?: Mouse=undefined;
     slot?: {
@@ -62,9 +103,9 @@ export class GameObject {
 }
 
 export class GameObject2 {
-    cards: Set<GameObject>=new Set<GameObject>();
+    cards: Set<CardObject>=new Set<CardObject>();
     discardSlot: GameObject=new GameObject();
     foundation:GameObject[]=new Array<GameObject>();
     mouseEvent:GameObject=new GameObject();
-    firework:Set<GameObject>=new Set<GameObject>();
+    firework:Set<FireworkObject>=new Set<FireworkObject>();
 }

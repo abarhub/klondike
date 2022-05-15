@@ -1,5 +1,5 @@
 import {canvas, gos} from "./init.js";
-import {GameObject, GameObject2} from "./game-object.js";
+import {CardObject, FireworkObject, GameObject, GameObject2} from "./game-object.js";
 import {saveGameState} from "./undo.js";
 
 // UPDATE
@@ -27,11 +27,11 @@ export function listGameObject(gos:GameObject2):GameObject[]{
     if(gos.mouseEvent){
         res.push(gos.mouseEvent);
     }
-    if(gos.firework){
-        for (const go of gos.firework.values()) {
-            res.push(go);
-        }
-    }
+    // if(gos.firework){
+    //     for (const go of gos.firework.values()) {
+    //         res.push(go);
+    //     }
+    // }
     return res;
 }
 
@@ -39,14 +39,14 @@ export function update() {
     for (const go of listGameObject(gos)) {
         updateGrabMouse(go);
     }
-    for (const go of listGameObject(gos)) {
+    for (const go of gos.cards) {
         if (go.card)
             updateCard(go)
     }
     updateFireworks()
 }
 
-function updateCard(go: GameObject) {
+function updateCard(go: CardObject) {
     if (go.stack) {
         const { x: px, y: py } = go.stack.previous.transform!
         if (go.stack.spaced) {
@@ -61,14 +61,14 @@ function updateCard(go: GameObject) {
 
 function updateFireworks() {
     let found = false
-    for (const go of listGameObject(gos).values()) {
+    for (const go of gos.firework.values()) {
         if (go.firework) {
             found = true
             updateFirework(go)
         }
     }
     if (!found) {
-        const won = ![...listGameObject(gos).values()]
+        const won = ![...gos.cards.values()]
             .filter(go => go.slot && go.slot.kind === "foundation")
             .map(findTopCardOfSlot)
             .find(go => !go.card || go.card.rank < 13)
@@ -77,7 +77,7 @@ function updateFireworks() {
     }
 }
 
-function updateFirework(go: GameObject) {
+function updateFirework(go: FireworkObject) {
     if (go.firework!.life-- > 0) {
         // gravity
         go.firework!.ay += 0.001
@@ -97,7 +97,7 @@ function spawnFireworks() {
     const x = Math.random() * canvas.width
     const y = (Math.random() ** 2) * canvas.height
     for (let i = 0; i < 10; i++) {
-        const go: GameObject = {
+        const go: FireworkObject = {
             firework: {
                 life: Math.random() * 1000,
                 color,
@@ -127,7 +127,7 @@ function updateGrab(go: GameObject) {
 function updateMouse(go: GameObject) {
     // detect card & slot under mouse
     const { x, y } = go.transform!
-    const card = [...listGameObject(gos).values()]
+    const card = [...gos.cards.values()]
         .filter(go =>
             go.card
             && x >= go.transform!.x - go.transform!.width / 2
@@ -137,7 +137,7 @@ function updateMouse(go: GameObject) {
         )
         .sort((a, b) => a.transform!.y - b.transform!.y)
         .pop()
-    const slot = [...listGameObject(gos).values()]
+    const slot = [...gos.cards.values()]
         .filter(go =>
             go.slot
             && x >= go.transform!.x - go.transform!.width / 2
@@ -154,7 +154,7 @@ function updateMouse(go: GameObject) {
     const changed = pressed !== wasPressed
     go.mouse!.wasPressed = go.mouse!.pressed
     if (changed) {
-        const grabbedCard = [...listGameObject(gos).values()].find(go => !!go.grab)
+        const grabbedCard = [...gos.cards.values()].find(go => !!go.grab)
         if (!grabbedCard && pressed) {
             if (card) {
                 if (card.card!.faceUp) {
@@ -199,7 +199,7 @@ function findDiscardSlot() {
 }
 
 
-function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
+function moveGrabbedCards(grabbedCard: CardObject, newSlot?: CardObject) {
     const MOVE_CANCELLED = Symbol.for("move cancelled")
     try {
         // check if move target exists
@@ -210,13 +210,18 @@ function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
 
         // check if rules allow the move
         const topCardOfNewSlot = findTopCardOfSlot(newSlot)
+        console.info('moveGrabbedCards',newSlot,topCardOfNewSlot,'oldSlot',oldSlot,'grabbedCard',grabbedCard);
+        console.info('moveGrabbedCards gos',gos);
         switch (newSlot.slot!.kind) {
             case "pile":
+                console.info('moveGrabbedCards pile ',oldSlot,grabbedCard);
                 if (oldSlot.slot!.kind === "stock"
                     || (topCardOfNewSlot.card
                         ? !isStackingAllowed(topCardOfNewSlot, grabbedCard)
-                        : grabbedCard.card!.rank < 13))
+                        : grabbedCard.card!.rank < 13)) {
+                    console.info('moveGrabbedCards pile cancel', topCardOfNewSlot);
                     throw MOVE_CANCELLED
+                }
                 break
             case "stock":
                 throw MOVE_CANCELLED
@@ -251,6 +256,7 @@ function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
         // release card from grab
         delete grabbedCard.grab
     } catch (error) {
+        console.info('moveGrabbedCards catch',error);
         if (error !== MOVE_CANCELLED)
             throw error
 
@@ -261,14 +267,14 @@ function moveGrabbedCards(grabbedCard: GameObject, newSlot?: GameObject) {
     }
 }
 
-export function findSlotOfCard(card: GameObject) {
+export function findSlotOfCard(card: CardObject) {
     let slot = card
     while (slot.stack)
         slot = slot.stack.previous
     return slot
 }
 
-function findTopCardOfSlot(slot: GameObject) {
+function findTopCardOfSlot(slot: CardObject):CardObject {
     let slotTop = slot
     while (true) {
         const above = findCardAbove(slotTop)
@@ -279,17 +285,36 @@ function findTopCardOfSlot(slot: GameObject) {
     return slotTop
 }
 
-function findCardAbove(card: GameObject) {
-    return [...listGameObject(gos).values()].find(go => !!(go.stack && go.stack.previous === card))
+function findCardAbove(card: CardObject):CardObject|undefined {
+    return [...gos.cards.values()].find(go =>
+        !!(go.stack && go.stack.previous === card)
+        //!!(go.stack && equal(go.stack.previous, card))
+    )
 }
 
-function isStackingAllowed(bottomCard: GameObject, topCard: GameObject) {
+function equal(o:GameObject, o2:GameObject):boolean{
+    if(o.slot&&o2.slot &&o.slot.kind===o2.slot.kind){
+        switch(o.slot.kind){
+            case "pile":
+                return o.slot.kind===o2.slot.kind&&o.slot.pile == o2.slot.pile;
+            case "stock":
+            case "discard":
+                return true;
+            case "foundation":
+                return o.slot.kind===o2.slot.kind&&o.slot.foundation == o2.slot.foundation;
+        }
+    } else {
+        return false;
+    }
+}
+
+function isStackingAllowed(bottomCard: CardObject, topCard: CardObject) {
     // check decreasing rank and alternating color
     return topCard.card!.rank + 1 === bottomCard.card!.rank
         && isRedCard(bottomCard) !== isRedCard(topCard)
 }
 
-function isRedCard(card: GameObject) {
+function isRedCard(card: CardObject) {
     switch (card.card!.suit) {
         case "HEARTS":
         case "DIAMONDS":

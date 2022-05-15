@@ -1,6 +1,6 @@
 import {canvas, ctx, gos} from "./init.js";
 import {findSlotOfCard, listGameObject} from "./update.js";
-import {GameObject} from "./game-object.js";
+import {CardObject, GameObject} from "./game-object.js";
 
 // RENDER
 
@@ -24,7 +24,7 @@ function renderTitle() {
 }
 
 function renderCards() {
-    const sortedCards = [...listGameObject(gos).values()]
+    const sortedCards = [...gos.cards.values()]
         .filter(go => go.card)
         .sort((a, b) => {
             const grabA = findSlotOfCard(a).grab ? 1 : 0
@@ -40,7 +40,7 @@ function renderCards() {
         renderCard(go)
 }
 
-function renderCard(go: GameObject) {
+function renderCard(go: CardObject) {
     const { suit, rank, faceUp } = go.card!
     const { x, y, width, height } = go.transform!
     const halfwidth = width / 2, halfheight = height / 2
@@ -133,7 +133,7 @@ function makeRectangle(x: number, y: number, halfwidth: number, halfheight: numb
 }
 
 function renderFireworks() {
-    for (const go of listGameObject(gos).values()) {
+    for (const go of gos.firework.values()) {
         if (go.firework) {
             const { x, y, width, height } = go.transform!
             ctx.strokeStyle = "black"

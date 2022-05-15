@@ -111,7 +111,7 @@ function makeRectangle(x, y, halfwidth, halfheight, callback) {
     ctx.beginPath();
 }
 function renderFireworks() {
-    for (const go of listGameObject(gos).values()) {
+    for (const go of gos.firework.values()) {
         if (go.firework) {
             const { x, y, width, height } = go.transform;
             ctx.strokeStyle = "black";
@@ -122,7 +122,7 @@ function renderFireworks() {
     }
 }
 function renderMouse() {
-    for (const go of listGameObject(gos).values()) {
+    for (const go of gos.mouseEvent.values()) {
         if (go.mouse) {
             const { x, y } = go.transform;
             const { pressed, targets } = go.mouse;

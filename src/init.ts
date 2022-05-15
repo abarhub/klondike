@@ -1,4 +1,4 @@
-import {GameObject, GameObject2} from "./game-object.js";
+import {CardObject, GameObject, GameObject2} from "./game-object.js";
 import {nouvellePartie, recommencer} from "./action.js";
 import {annuleAction} from "./undo.js";
 
@@ -64,7 +64,7 @@ function createCards(){
 function dealCard(): void {
     const shuffledDeck = [...gos.cards.values()].sort((a, b) => getRandom() - .5)
     for (let pile = 1; pile <= 7; ++pile) {
-        let previous: GameObject = {
+        let previous: CardObject = {
             slot: {
                 kind: "pile",
                 pile
@@ -87,7 +87,7 @@ function dealCard(): void {
         }
         previous.card!.faceUp = true
     }
-    let previous: GameObject = {
+    let previous: CardObject = {
         slot: {
             kind: "stock"
         },
