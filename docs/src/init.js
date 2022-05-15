@@ -1,8 +1,11 @@
+import { GameObject2 } from "./game-object.js";
+import { nouvellePartie, recommencer } from "./action.js";
+import { annuleAction } from "./undo.js";
 // INIT
-export const gos = new Set();
+export const gos = new GameObject2();
 export const canvas = document.getElementsByTagName("canvas")[0];
 export const ctx = canvas.getContext("2d");
-const OFFSCREEN = -1000;
+export const OFFSCREEN = -1000;
 const randomValues = [];
 let seed = Math.random() * 100000;
 let lastValue = 0;
@@ -32,10 +35,10 @@ function getRandom() {
 }
 // create cards
 function createCards() {
-    gos.clear();
+    gos.cards.clear();
     for (const suit of ["SPADES", "HEARTS", "CLUBS", "DIAMONDS"])
         for (let rank = 1; rank <= 13; ++rank)
-            gos.add({
+            gos.cards.add({
                 card: {
                     suit,
                     rank,
@@ -51,7 +54,7 @@ function createCards() {
 }
 // deal cards
 function dealCard() {
-    const shuffledDeck = [...gos.values()].sort((a, b) => getRandom() - .5);
+    const shuffledDeck = [...gos.cards.values()].sort((a, b) => getRandom() - .5);
     for (let pile = 1; pile <= 7; ++pile) {
         let previous = {
             slot: {
@@ -65,7 +68,7 @@ function dealCard() {
                 height: 150
             }
         };
-        gos.add(previous);
+        gos.cards.add(previous);
         for (let position = 1; position <= pile; ++position) {
             const card = shuffledDeck.pop();
             card.stack = {
@@ -87,7 +90,7 @@ function dealCard() {
             height: 150
         }
     };
-    gos.add(previous);
+    gos.cards.add(previous);
     for (const card of shuffledDeck) {
         card.stack = {
             previous,
@@ -109,7 +112,7 @@ function createDiscardSlot() {
             height: 150
         }
     };
-    gos.add(go);
+    gos.discardSlot = go;
 }
 // create foundation
 function createFoundation() {
@@ -126,7 +129,7 @@ function createFoundation() {
                 height: 150
             }
         };
-        gos.add(go);
+        gos.foundation.push(go);
     }
 }
 // watch mouse events
@@ -144,7 +147,10 @@ function watchMouseEvents() {
             height: 1
         }
     };
-    gos.add(go);
+    gos.mouseEvent = go;
+    addEvent(go);
+}
+export function addEvent(go) {
     canvas.addEventListener("mousedown", event => {
         go.mouse.pressed = true;
         event.preventDefault();
@@ -186,6 +192,14 @@ function initDisplay() {
         elt.innerHTML = "Seed : " + seed;
     }
 }
+function initBouton() {
+    var _a, _b, _c;
+    if (document) {
+        (_a = document.querySelector('#nouvellePartie')) === null || _a === void 0 ? void 0 : _a.addEventListener('click', nouvellePartie);
+        (_b = document.querySelector('#recommencer')) === null || _b === void 0 ? void 0 : _b.addEventListener('click', recommencer);
+        (_c = document.querySelector('#annuler')) === null || _c === void 0 ? void 0 : _c.addEventListener('click', annuleAction);
+    }
+}
 export function initialize(reinitRandom) {
     if (reinitRandom) {
         seed = Math.random();
@@ -200,4 +214,5 @@ export function initialize(reinitRandom) {
     createDiscardSlot();
     createFoundation();
     watchMouseEvents();
+    initBouton();
 }

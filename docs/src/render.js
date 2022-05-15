@@ -1,5 +1,5 @@
 import { canvas, ctx, gos } from "./init.js";
-import { findSlotOfCard } from "./update.js";
+import { findSlotOfCard, listGameObject } from "./update.js";
 // RENDER
 export function render() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -18,7 +18,7 @@ function renderTitle() {
     ctx.fillText("____", canvas.width * .5, canvas.height * .96);
 }
 function renderCards() {
-    const sortedCards = [...gos.values()]
+    const sortedCards = [...listGameObject(gos).values()]
         .filter(go => go.card)
         .sort((a, b) => {
         const grabA = findSlotOfCard(a).grab ? 1 : 0;
@@ -111,7 +111,7 @@ function makeRectangle(x, y, halfwidth, halfheight, callback) {
     ctx.beginPath();
 }
 function renderFireworks() {
-    for (const go of gos.values()) {
+    for (const go of listGameObject(gos).values()) {
         if (go.firework) {
             const { x, y, width, height } = go.transform;
             ctx.strokeStyle = "black";
@@ -122,7 +122,7 @@ function renderFireworks() {
     }
 }
 function renderMouse() {
-    for (const go of gos.values()) {
+    for (const go of listGameObject(gos).values()) {
         if (go.mouse) {
             const { x, y } = go.transform;
             const { pressed, targets } = go.mouse;
@@ -140,7 +140,7 @@ function renderMouse() {
     }
 }
 function renderSlots() {
-    for (const go of gos.values())
+    for (const go of listGameObject(gos).values())
         if (go.slot)
             renderSlot(go);
 }
