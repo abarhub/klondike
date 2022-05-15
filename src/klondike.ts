@@ -15,6 +15,11 @@ initialize(true)
 
 // ACTION
 
+if(document) {
+  document.querySelector('#nouvellePartie')?.addEventListener('click', nouvellePartie);
+  document.querySelector('#recommencer')?.addEventListener('click', recommencer);
+}
+
 // RUN
 
 requestAnimationFrame(function run() {
