@@ -74,9 +74,10 @@ function updateFireworks() {
             .filter(go => go.slot && go.slot.kind === "foundation")
             .map(findTopCardOfSlot)
             .find(go => !go.card || go.card.rank < 13)
-        if (won)
+        if (won) {
             gos.showFirework = true;
-        spawnFireworks()
+            spawnFireworks();
+        }
     }
 }
 
