@@ -5,13 +5,13 @@ import {CardObject, GameObject} from "./game-object.js";
 // RENDER
 
 export function render() {
-    ctx.clearRect(0, 0, canvas.width, canvas.height)
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-    renderTitle()
-    renderSlots()
-    renderCards()
-    renderFireworks()
-    // renderMouse()
+    renderTitle();
+    renderSlots();
+    renderCards();
+    renderFireworks();
+    //renderMouse();
 }
 
 function renderTitle() {
@@ -135,11 +135,11 @@ function makeRectangle(x: number, y: number, halfwidth: number, halfheight: numb
 function renderFireworks() {
     for (const go of gos.firework.values()) {
         if (go.firework) {
-            const { x, y, width, height } = go.transform!
-            ctx.strokeStyle = "black"
-            ctx.strokeRect(x - width / 2, y - height / 2, width - width / 2, height - height / 2)
-            ctx.fillStyle = go.firework.color
-            ctx.fillRect(x - width / 2, y - height / 2, width - width / 2, height - height / 2)
+            const { x, y, width, height } = go.transform!;
+            ctx.strokeStyle = "black";
+            ctx.strokeRect(x - width / 2, y - height / 2, width - width / 2, height - height / 2);
+            ctx.fillStyle = go.firework.color;
+            ctx.fillRect(x - width / 2, y - height / 2, width - width / 2, height - height / 2);
         }
     }
 }

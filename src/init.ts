@@ -164,43 +164,43 @@ function watchMouseEvents(): void {
 
 export function addEvent(go: GameObject){
     canvas.addEventListener("mousedown", event => {
-        go.mouse!.pressed = true
-        event.preventDefault()
+        go.mouse!.pressed = true;
+        event.preventDefault();
     })
     canvas.addEventListener("mouseup", event => {
-        go.mouse!.pressed = false
-        event.preventDefault()
+        go.mouse!.pressed = false;
+        event.preventDefault();
     })
     canvas.addEventListener("mousemove", event => {
-        go.transform!.x = event.offsetX / canvas.offsetWidth * canvas.width
-        go.transform!.y = event.offsetY / canvas.offsetHeight * canvas.height
-        event.preventDefault()
+        go.transform!.x = event.offsetX / canvas.offsetWidth * canvas.width;
+        go.transform!.y = event.offsetY / canvas.offsetHeight * canvas.height;
+        event.preventDefault();
     })
     canvas.addEventListener("touchstart", event => {
         go.mouse!.pressed = true
-        const { left, top } = canvas.getBoundingClientRect()
-        go.transform!.x = (event.touches[0].clientX - left) / canvas.offsetWidth * canvas.width
-        go.transform!.y = (event.touches[0].clientY - top) / canvas.offsetHeight * canvas.height
+        const { left, top } = canvas.getBoundingClientRect();
+        go.transform!.x = (event.touches[0].clientX - left) / canvas.offsetWidth * canvas.width;
+        go.transform!.y = (event.touches[0].clientY - top) / canvas.offsetHeight * canvas.height;
         event.preventDefault()
     })
     canvas.addEventListener("touchmove", event => {
-        const { left, top } = canvas.getBoundingClientRect()
-        go.transform!.x = (event.touches[0].clientX - left) / canvas.offsetWidth * canvas.width
-        go.transform!.y = (event.touches[0].clientY - top) / canvas.offsetHeight * canvas.height
-        event.preventDefault()
+        const { left, top } = canvas.getBoundingClientRect();
+        go.transform!.x = (event.touches[0].clientX - left) / canvas.offsetWidth * canvas.width;
+        go.transform!.y = (event.touches[0].clientY - top) / canvas.offsetHeight * canvas.height;
+        event.preventDefault();
     })
     canvas.addEventListener("touchend", event => {
-        go.mouse!.pressed = false
-        event.preventDefault()
+        go.mouse!.pressed = false;
+        event.preventDefault();
     })
     canvas.addEventListener("touchcancel", event => {
-        go.mouse!.pressed = false
-        event.preventDefault()
+        go.mouse!.pressed = false;
+        event.preventDefault();
     })
 }
 
 function initDisplay(): void {
-    let elt=document?.getElementById("seedValue")
+    let elt=document?.getElementById("seedValue");
     if(elt) {
         elt.innerHTML = "Seed : " + seed;
     }
@@ -217,18 +217,19 @@ function initBouton() {
 
 export function initialize(reinitRandom: boolean): void {
     if(reinitRandom) {
-        seed=Math.random()
-        initRandom()
+        seed=Math.random();
+        initRandom();
     } else {
         lastValue=0;
     }
-    initDisplay()
-    createCards()
-    dealCard()
-    createDiscardSlot()
-    createFoundation()
-    watchMouseEvents()
+    initDisplay();
+    createCards();
+    dealCard();
+    createDiscardSlot();
+    createFoundation();
+    watchMouseEvents();
     initBouton();
+    gos.showFirework=false;
 }
 
 

@@ -108,4 +108,5 @@ export class GameObject2 {
     foundation:GameObject[]=new Array<GameObject>();
     mouseEvent:GameObject=new GameObject();
     firework:Set<FireworkObject>=new Set<FireworkObject>();
+    showFirework:boolean=false;
 }

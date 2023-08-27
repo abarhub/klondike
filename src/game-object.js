@@ -50,5 +50,6 @@ export class GameObject2 {
         this.foundation = new Array();
         this.mouseEvent = new GameObject();
         this.firework = new Set();
+        this.showFirework = false;
     }
 }

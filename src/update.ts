@@ -4,34 +4,34 @@ import {saveGameState} from "./undo.js";
 
 // UPDATE
 
-function updateGrabMouse(go:GameObject){
+function updateGrabMouse(go: GameObject) {
     if (go.grab)
         updateGrab(go)
     if (go.mouse)
         updateMouse(go)
 }
 
-export function listGameObject(gos:GameObject2):GameObject[]{
-    const res:GameObject[]=[];
+export function listGameObject(gos: GameObject2): GameObject[] {
+    const res: GameObject[] = [];
     for (const go of gos.cards.values()) {
         res.push(go);
     }
-    if(gos.discardSlot){
+    if (gos.discardSlot) {
         res.push(gos.discardSlot);
     }
-    if(gos.foundation){
+    if (gos.foundation) {
         for (const go of gos.foundation.values()) {
             res.push(go);
         }
     }
-    if(gos.mouseEvent){
+    if (gos.mouseEvent) {
         res.push(gos.mouseEvent);
     }
-    // if(gos.firework){
-    //     for (const go of gos.firework.values()) {
-    //         res.push(go);
-    //     }
-    // }
+    if (gos.firework) {
+        for (const go of gos.firework.values()) {
+            res.push(go);
+        }
+    }
     return res;
 }
 
@@ -41,14 +41,16 @@ export function update() {
     }
     for (const go of gos.cards) {
         if (go.card)
-            updateCard(go)
+            updateCard(go);
     }
-    updateFireworks()
+    if (gos.showFirework) {
+        updateFireworks();
+    }
 }
 
 function updateCard(go: CardObject) {
     if (go.stack) {
-        const { x: px, y: py } = go.stack.previous.transform!
+        const {x: px, y: py} = go.stack.previous.transform!
         if (go.stack.spaced) {
             go.transform!.x = px
             go.transform!.y = py + 30
@@ -73,7 +75,8 @@ function updateFireworks() {
             .map(findTopCardOfSlot)
             .find(go => !go.card || go.card.rank < 13)
         if (won)
-            spawnFireworks()
+            gos.showFirework = true;
+        spawnFireworks()
     }
 }
 
@@ -126,7 +129,7 @@ function updateGrab(go: GameObject) {
 
 function updateMouse(go: GameObject) {
     // detect card & slot under mouse
-    const { x, y } = go.transform!
+    const {x, y} = go.transform!
     const card = [...gos.cards.values()]
         .filter(go =>
             go.card
@@ -137,7 +140,7 @@ function updateMouse(go: GameObject) {
         )
         .sort((a, b) => a.transform!.y - b.transform!.y)
         .pop()
-    const slot = [...gos.cards.values()]
+    const slot = [...gos.cards.values(),...gos.foundation.values()]
         .filter(go =>
             go.slot
             && x >= go.transform!.x - go.transform!.width / 2
@@ -147,10 +150,10 @@ function updateMouse(go: GameObject) {
         )
         .sort((a, b) => a.transform!.y - b.transform!.y)
         .pop()
-    go.mouse!.targets = { card, slot }
+    go.mouse!.targets = {card, slot}
 
     // move card when pressed
-    const { pressed, wasPressed } = go.mouse!
+    const {pressed, wasPressed} = go.mouse!
     const changed = pressed !== wasPressed
     go.mouse!.wasPressed = go.mouse!.pressed
     if (changed) {
@@ -177,7 +180,7 @@ function updateMouse(go: GameObject) {
                 let stockCard = slot
                 let discardedCard = findTopCardOfSlot(findDiscardSlot())
                 while (discardedCard.card) {
-                    const { previous } = discardedCard.stack!
+                    const {previous} = discardedCard.stack!
                     discardedCard.card.faceUp = false
                     discardedCard.stack = {
                         previous: stockCard,
@@ -205,16 +208,17 @@ function moveGrabbedCards(grabbedCard: CardObject, newSlot?: CardObject) {
         // check if move target exists
         const topCardOfOldSlot = grabbedCard.grab!.stack.previous
         const oldSlot = findSlotOfCard(topCardOfOldSlot)
-        if (!newSlot || newSlot === oldSlot)
-            throw MOVE_CANCELLED
+        if (!newSlot || newSlot === oldSlot) {
+            throw MOVE_CANCELLED;
+        }
 
         // check if rules allow the move
         const topCardOfNewSlot = findTopCardOfSlot(newSlot)
-        console.info('moveGrabbedCards',newSlot,topCardOfNewSlot,'oldSlot',oldSlot,'grabbedCard',grabbedCard);
-        console.info('moveGrabbedCards gos',gos);
+        console.info('moveGrabbedCards', newSlot, topCardOfNewSlot, 'oldSlot', oldSlot, 'grabbedCard', grabbedCard);
+        console.info('moveGrabbedCards gos', gos);
         switch (newSlot.slot!.kind) {
             case "pile":
-                console.info('moveGrabbedCards pile ',oldSlot,grabbedCard);
+                console.info('moveGrabbedCards pile ', oldSlot, grabbedCard);
                 if (oldSlot.slot!.kind === "stock"
                     || (topCardOfNewSlot.card
                         ? !isStackingAllowed(topCardOfNewSlot, grabbedCard)
@@ -256,7 +260,7 @@ function moveGrabbedCards(grabbedCard: CardObject, newSlot?: CardObject) {
         // release card from grab
         delete grabbedCard.grab
     } catch (error) {
-        console.info('moveGrabbedCards catch',error);
+        console.error('moveGrabbedCards catch', error);
         if (error !== MOVE_CANCELLED)
             throw error
 
@@ -274,7 +278,7 @@ export function findSlotOfCard(card: CardObject) {
     return slot
 }
 
-function findTopCardOfSlot(slot: CardObject):CardObject {
+function findTopCardOfSlot(slot: CardObject): CardObject {
     let slotTop = slot
     while (true) {
         const above = findCardAbove(slotTop)
@@ -285,23 +289,23 @@ function findTopCardOfSlot(slot: CardObject):CardObject {
     return slotTop
 }
 
-function findCardAbove(card: CardObject):CardObject|undefined {
+function findCardAbove(card: CardObject): CardObject | undefined {
     return [...gos.cards.values()].find(go =>
-        !!(go.stack && go.stack.previous === card)
+            !!(go.stack && go.stack.previous === card)
         //!!(go.stack && equal(go.stack.previous, card))
     )
 }
 
-function equal(o:GameObject, o2:GameObject):boolean{
-    if(o.slot&&o2.slot &&o.slot.kind===o2.slot.kind){
-        switch(o.slot.kind){
+function equal(o: GameObject, o2: GameObject): boolean {
+    if (o.slot && o2.slot && o.slot.kind === o2.slot.kind) {
+        switch (o.slot.kind) {
             case "pile":
-                return o.slot.kind===o2.slot.kind&&o.slot.pile == o2.slot.pile;
+                return o.slot.kind === o2.slot.kind && o.slot.pile == o2.slot.pile;
             case "stock":
             case "discard":
                 return true;
             case "foundation":
-                return o.slot.kind===o2.slot.kind&&o.slot.foundation == o2.slot.foundation;
+                return o.slot.kind === o2.slot.kind && o.slot.foundation == o2.slot.foundation;
         }
     } else {
         return false;
