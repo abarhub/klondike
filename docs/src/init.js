@@ -215,4 +215,5 @@ export function initialize(reinitRandom) {
     createFoundation();
     watchMouseEvents();
     initBouton();
+    gos.showFirework = false;
 }

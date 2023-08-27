@@ -7,7 +7,7 @@ export function render() {
     renderSlots();
     renderCards();
     renderFireworks();
-    // renderMouse()
+    //renderMouse();
 }
 function renderTitle() {
     ctx.font = "60px serif";
@@ -18,7 +18,7 @@ function renderTitle() {
     ctx.fillText("____", canvas.width * .5, canvas.height * .96);
 }
 function renderCards() {
-    const sortedCards = [...listGameObject(gos).values()]
+    const sortedCards = [...gos.cards.values()]
         .filter(go => go.card)
         .sort((a, b) => {
         const grabA = findSlotOfCard(a).grab ? 1 : 0;
@@ -122,7 +122,7 @@ function renderFireworks() {
     }
 }
 function renderMouse() {
-    for (const go of gos.mouseEvent.values()) {
+    for (const go of listGameObject(gos).values()) {
         if (go.mouse) {
             const { x, y } = go.transform;
             const { pressed, targets } = go.mouse;
