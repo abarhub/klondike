@@ -146,6 +146,7 @@ function copy(gos) {
     }
     res.discardSlot = deepCopy3(gos.discardSlot);
     res.mouseEvent = deepCopy3(gos.mouseEvent);
+    res.showFirework = gos.showFirework;
     return res;
 }
 export function saveGameState() {
@@ -158,6 +159,13 @@ export function annuleAction() {
     const tmp = lastGameState.pop();
     if (tmp) {
         addEvent(tmp.mouseEvent);
-        Object.assign(gos, tmp);
+        //Object.assign(gos, tmp);
+        // gos=tmp;
+        gos.cards = tmp.cards;
+        gos.discardSlot = tmp.discardSlot;
+        gos.foundation = tmp.foundation;
+        gos.mouseEvent = tmp.mouseEvent;
+        gos.firework = tmp.firework;
+        gos.showFirework = tmp.showFirework;
     }
 }

@@ -158,6 +158,7 @@ function copy(gos: GameObject2): GameObject2 {
     }
     res.discardSlot=deepCopy3(gos.discardSlot);
     res.mouseEvent=deepCopy3(gos.mouseEvent);
+    res.showFirework=gos.showFirework;
 
     return res;
 }
